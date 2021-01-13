@@ -20,6 +20,6 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
-    /* ... */
+    baseUrl: "/z0rde-maker"
   },
 };
