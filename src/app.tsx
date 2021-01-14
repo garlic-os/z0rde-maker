@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import React, { useState, useEffect } from "react";
-import "./App.css";
+import React, { useState } from "react";
+import "./app.css";
 
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 const ffmpeg = createFFmpeg({ log: true });
@@ -9,16 +9,10 @@ const ffmpeg = createFFmpeg({ log: true });
 type Stateful<T> = [T, Dispatch<SetStateAction<T>>];
 
 export default () => {
-  const [ ready, setReady ] = useState(false);
   const [ video, setVideo ]: Stateful<File> = useState();
   const [ audio, setAudio ]: Stateful<File> = useState();
   const [ outputURL, setOutputURL ]: Stateful<string> = useState();
   const [ processing, setProcessing ] = useState(false);
-
-  useEffect(() => { (async () => {
-    await ffmpeg.load();
-    setReady(true);
-  })() }, []);
 
   const mergeTracks = async () => {
     setProcessing(true);
@@ -58,76 +52,60 @@ export default () => {
 
   return (
 
-    <table className="app">
-      <tr>
-        <td className="input">
-          <label>Video or image</label><br/>
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={(e) => setVideo(e.target.files?.item(0))}
-            disabled={!ready} />
+    <table className="app"><tbody><tr>
+      <td className="input">
+        <label>Video or image</label><br/>
+        <input
+          type="file"
+          accept="image/*,video/*"
+          onChange={(e) => setVideo(e.target.files?.item(0))} />
 
-          { video && 
-            <span>
-              <br/>
-              { video.type.startsWith("video/") ?
-                <video
-                  controls
-                  className="inputVideo"
-                  src={URL.createObjectURL(video)}>
-
-                </video>
-                :
-                <img
-                  className="inputVideo"
-                  src={URL.createObjectURL(video)} /> }
-            </span> }
-
-          <br/><br/>
-
-          <label>Audio track</label><br/>
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => setAudio(e.target.files?.item(0))}
-            disabled={!ready} />
-
-          { audio &&
-            <span>
-              <br/>
-              <audio
+        { video &&
+          <span>
+            <br/>
+            { video.type.startsWith("video/") ?
+              <video
                 controls
-                src={URL.createObjectURL(audio)}>
+                className="inputVideo"
+                src={URL.createObjectURL(video)} />
+              :
+              <img
+                className="inputVideo"
+                src={URL.createObjectURL(video)} /> }
+          </span> }
 
-              </audio>
-            </span> }
+        <br/><br/>
 
-          <br/><br/>
+        <label>Audio track</label><br/>
+        <input
+          type="file"
+          accept="audio/*"
+          onChange={(e) => setAudio(e.target.files?.item(0))} />
 
-          <button
-            onClick={mergeTracks}
-            disabled={!ready || processing || !audio || !video}>
-              Combine
-          </button>
-        </td>
+        { audio &&
+          <span>
+            <br/>
+            <audio controls src={URL.createObjectURL(audio)} />
+          </span> }
 
-        <td className="output">
-          { !processing && outputURL && 
-            <video
-              controls
-              src={outputURL}>
+        <br/><br/>
 
-            </video> }
-          {
-            processing &&
-            <div className="loading-spinner">
-              <div></div><div></div><div></div><div></div>
-            </div>
-          }
-        </td>
-      </tr>
-    </table>
+        <button
+          onClick={mergeTracks}
+          disabled={ processing || !audio || !video}>
+            Combine
+        </button>
+      </td>
+
+      <td className="output">
+        { !processing && outputURL && <video controls src={outputURL} /> }
+
+        { processing &&
+          <div className="loading-spinner">
+            <div></div><div></div><div></div><div></div>
+          </div> }
+      </td>
+    </tr></tbody></table>
 
   );
 
