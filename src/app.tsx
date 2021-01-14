@@ -55,61 +55,53 @@ export default () => {
   };
 
   return (
-
-    <table className="app"><tbody><tr>
-      <td className="input">
-        <label>Video or image</label><br/>
+    <main>
+      <section className="input">
+        <label>Video or image</label>
         <input
           type="file"
           accept="image/*,video/*"
           onChange={(e) => setVideo(e.target.files?.item(0))} />
 
-        { video &&
-          <span>
-            <br/>
-            { video.type.startsWith("video/") ?
-              <video
-                controls
-                className="inputVideo"
-                src={URL.createObjectURL(video)} />
-              :
-              <img
-                className="inputVideo"
-                src={URL.createObjectURL(video)} /> }
-          </span> }
+        { video && (
+          video.type.startsWith("video/") ?
+            <video
+              controls
+              className="inputVideo"
+              src={URL.createObjectURL(video)} />
+            :
+            <img
+              className="inputVideo"
+              src={URL.createObjectURL(video)} /> ) }
 
-        <br/><br/>
+        <br/>
 
-        <label>Audio track</label><br/>
+        <label>Audio track</label>
         <input
           type="file"
-          accept="audio/*"
+          accept="audio/*,video/*" // FFmpeg can get audio from video files, too
           onChange={(e) => setAudio(e.target.files?.item(0))} />
 
-        { audio &&
-          <span>
-            <br/>
-            <audio controls src={URL.createObjectURL(audio)} />
-          </span> }
+        { audio && <audio controls src={URL.createObjectURL(audio)} /> }
 
-        <br/><br/>
+        <br/>
 
         <button
           onClick={mergeTracks}
           disabled={ processing || !audio || !video}>
             Combine
         </button>
-      </td>
+      </section>
 
-      <td className="output">
+      <section className="output">
         { !processing && outputURL && <video controls src={outputURL} /> }
 
         { processing &&
           <div className="loading-spinner">
             <div></div><div></div><div></div><div></div>
           </div> }
-      </td>
-    </tr></tbody></table>
+      </section>
+    </main>
 
   );
 
