@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./app.css";
 
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
@@ -9,10 +9,13 @@ const ffmpeg = createFFmpeg({ log: true });
 type Stateful<T> = [T, Dispatch<SetStateAction<T>>];
 
 export default () => {
+  const [ ready, setReady ]: Stateful<Promise<void>> = useState();
   const [ video, setVideo ]: Stateful<File> = useState();
   const [ audio, setAudio ]: Stateful<File> = useState();
   const [ outputURL, setOutputURL ]: Stateful<string> = useState();
   const [ processing, setProcessing ] = useState(false);
+
+  useEffect( () => setReady(ffmpeg.load()), []);
 
   const mergeTracks = async () => {
     setProcessing(true);
@@ -22,6 +25,7 @@ export default () => {
       videoExt = "mp4";
     }
 
+    await ready;
     ffmpeg.FS("writeFile", `input.${videoExt}`, await fetchFile(video));
     ffmpeg.FS("writeFile", "input.wav", await fetchFile(audio));
 
