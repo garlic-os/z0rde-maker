@@ -6,7 +6,7 @@ module.exports = {
   },
   plugins: [
     "@snowpack/plugin-react-refresh",
-    "@snowpack/plugin-dotenv",
+    "@snowpack/plugin-webpack",
   ],
   buildOptions: {
     baseUrl: "/z0rde-maker",
