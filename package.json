@@ -1,26 +1,32 @@
 {
+  "name": "z0rde-maker",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "start": "snowpack dev",
-    "build": "snowpack build",
-    "format": "prettier --write \"src/**/*.{js,jsx}\"",
-    "lint": "prettier --check \"src/**/*.{js,jsx}\"",
-    "deploy": "gh-pages -d build"
-  },
-  "dependencies": {
-    "@ffmpeg/core": "^0.8.5",
-    "@ffmpeg/ffmpeg": "^0.9.6",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "build": "rollup -c",
+    "dev": "rollup -c -w -p json",
+    "start": "sirv public --no-clear",
+    "validate": "svelte-check"
   },
   "devDependencies": {
-    "@snowpack/plugin-react-refresh": "^2.4.0",
-    "@snowpack/plugin-webpack": "^2.3.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "chai": "^4.2.0",
-    "gh-pages": "^3.1.0",
-    "prettier": "^2.0.5",
-    "snowpack": "^3.0.1"
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-typescript": "^8.0.0",
+    "@tsconfig/svelte": "^1.0.0",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "svelte-check": "^1.0.0",
+    "svelte-preprocess": "^4.0.0",
+    "tslib": "^2.0.0",
+    "typescript": "^4.0.0"
   },
-  "homepage": "https://the-garlic-os.github.io/z0rde-maker"
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.10.0",
+    "sirv-cli": "^1.0.0"
+  }
 }
