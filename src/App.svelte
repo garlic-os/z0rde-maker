@@ -1,20 +1,36 @@
 <script lang="ts">
 	import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+	import DropArea from "./DropArea.svelte";
 	import ProgressBar from "./ProgressBar.svelte";
+	import ErrorBanner from "./ErrorBanner.svelte";
+	import GitHubButton from "./GitHubButton.svelte";
+	import { onMount } from "svelte";
 
 	type Maybe<T> = T | null | undefined;
 
-	export let progress = 0;
-	export let video: Maybe<File> = undefined;
-	export let audio: Maybe<File> = undefined;
-	export let outputURL: Maybe<string> = undefined;
-	export let processing = false;
+	let progress = 0;
+	let video: Maybe<File> = undefined;
+	let audio: Maybe<File> = undefined;
+	let outputURL: Maybe<string> = undefined;
+	let processing = false;
+	let outputSection: HTMLDivElement;
+
+	// Show errors in the output section
+	onMount( () => {
+		window.addEventListener("error", (event: ErrorEvent): void => {
+			new ErrorBanner({
+				target: outputSection,
+				props: { text: event.message },
+			});
+			console.error(event.error);
+		});
+	});
 
 	const ffmpeg = createFFmpeg({ progress: ({ ratio }) => progress = ratio });
 	const ready = ffmpeg.load();
 
 
-	const mergeTracks = async (): Promise<void> => {
+	async function mergeTracks(): Promise<void> {
 		processing = true;
 
 		// FFmpeg doesn't mind if the a file's extension and type don't match,
@@ -50,58 +66,17 @@
 		processing = false;
 		progress = 0;
 	};
-
-
-	const setVideo: svelte.JSX.FormEventHandler<HTMLInputElement> = (event) => {
-		// @ts-ignore -- <input type="file"> is not supported in TypeScript
-		video = event.target.files?.item(0);
-	};
-
-
-	const setAudio: svelte.JSX.FormEventHandler<HTMLInputElement> = (event) => {
-		// @ts-ignore -- <input type="file"> is not supported in TypeScript
-		audio = event.target.files?.item(0);
-	};
 </script>
 
 
 
 <main>
 	<section class="input">
-		<label>Video or image
-			<input type="file" accept="image/*,video/*" on:change={setVideo} />
-		</label>
-
-		{#if video}
-			{#if video.type.startsWith("video/")}
-				<video controls class="inputVideo"
-					src={URL.createObjectURL(video)} />
-			{:else}
-				<img class="inputVideo" alt="Input"
-					src={URL.createObjectURL(video)} />
-			{/if}
-		{/if}
-
-		<br/>
-
-		<label>Audio track
-			<!-- FFmpeg can get audio from video files, too -->
-			<input type="file" accept="audio/*,video/*" on:change={setAudio} />
-		</label>
-
-		{#if audio}
-			<audio controls src={URL.createObjectURL(audio)} />
-		{/if}
-
-		<br/>
-
-		<button disabled={ processing || !audio || !video }
-		        on:click={mergeTracks}>
-			Combine
-		</button>
+		<DropArea accept={["video", "image"]} setFile={ (file) => video = file } />
+		<DropArea accept={["audio", "video"]} setFile={ (file) => audio = file } />
 	</section>
 
-	<section class="output">
+	<section class="output" bind:this={outputSection}>
 		{#if processing}
 			<ProgressBar bind:progress />
 		{:else}
@@ -110,36 +85,37 @@
 			{/if}
 		{/if}
 	</section>
+
+	<button class="combine" disabled={ processing || !audio || !video }
+		    on:click={mergeTracks}>
+		Combine
+	</button>
+
+	<GitHubButton repo="the-garlic-os/z0rde-maker" />
 </main>
 
 
 
 <style>
 	main {
+		--dividing-border: 2px solid #82868b;
 		display: flex;
-		text-align: center;
+		background-color: #F3F4F6;
 	}
 
-	.input, .output {
+	section {
+		position: relative;
 		width: 50vw;
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		justify-content: space-evenly;
 		align-items: center;
 	}
 
 	.input {
-		border-right: 3px dashed black;
-		padding-right: 3px;
-	}
-	.output {
-		padding-left: 3px;
-	}
-
-	.input video, .input img {
-		width: clamp(25%, 300px, 100%);
-		max-height: calc(100vh - 400px);
+		padding: 8px;
+		border-right: var(--dividing-border);
 	}
 
 	.output video {
@@ -147,7 +123,44 @@
 		height: 100%;
 	}
 
-	video, audio {
-		outline: none;
+	.combine {
+		position: absolute;
+		left: 50%; top: 50%;
+		transform: translate3d(-50%, -50%, 0);
+		text-transform: uppercase;
+		letter-spacing: 0.125ch;
+		font-weight: 300;
+		padding: 0.5rem;
+		border-radius: 5px;
+		background-color: white;
+		color: black;
+		transition: all 250ms;
+		cursor: pointer;
+	}
+
+	.combine:disabled {
+		background-color: #dbdde0;
+		color: #0000007d;
+		cursor: unset;
+	}
+
+	.combine:not(:disabled):hover {
+		border: 1px solid black;
+	}
+
+	@media screen and (max-width: 1200px) {
+		main {
+			flex-direction: column;
+		}
+
+		section {
+			width: 100vw;
+			height: 50vh;
+		}
+
+		.input {
+			border-right: none;
+			border-bottom: var(--dividing-border);
+		}
 	}
 </style>
