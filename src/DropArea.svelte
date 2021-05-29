@@ -18,9 +18,17 @@
 		(event.target as HTMLInputElement).classList.remove("dragover");
 	}
 
-	function handleDrop(event: DragEvent): void {
+	function handleDragover(event: DragEvent): void {
+		// drop event doesn't fire without this ¯\_(ツ)_/¯
+		// https://stackoverflow.com/a/21341021
 		event.preventDefault();
 		event.stopPropagation();
+	}
+
+	function handleDrop(event: DragEvent): void {
+		event.stopPropagation();
+		event.preventDefault();
+		console.log("ayo");
 		handleFile(event.dataTransfer.files);
 	}
 
@@ -30,8 +38,9 @@
 	}
 
 	function clearArea(event: Event): void {
-		// So the "choose" dialog isn't immediately re-triggered
+		// Prevent "choose" dialog from being immediately re-triggered
 		event.stopPropagation();
+
 		file = undefined;
 		setFile(file);
 	}
@@ -43,6 +52,7 @@
      on:click={ () => file || dropArea.querySelector(".file-input").click() }
 	 on:dragenter={handleDragenter}
 	 on:dragleave={handleDragleave}
+	 on:dragover={handleDragover}
 	 on:drop={handleDrop}
 >
 	{#if file}
