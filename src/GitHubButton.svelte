@@ -22,7 +22,11 @@
 		height: var(--side-length);
 	}
 
-	a:hover {
-		filter: invert(0.2);
+	svg {
+		fill: #333333;
+	}
+
+	svg:hover {
+		fill: black;
 	}
 </style>
